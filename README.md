@@ -1,3 +1,6 @@
+[![Python 3](https://pyup.io/repos/github/khoivan88/find_sds/python-3-shield.svg)](https://pyup.io/repos/github/khoivan88/find_sds/)
+[![Updates](https://pyup.io/repos/github/khoivan88/find_sds/shield.svg)](https://pyup.io/repos/github/khoivan88/find_sds/)
+
 # FIND MISSING SAFETY DATA SHEET (SDS) 
 <br/>
 This program is designed to find and download safety data sheet of chemical 
@@ -31,6 +34,7 @@ ten threads are used but it can be changed depends on running computer.
 - Python 3+
 - [Dependencies](requirements.txt)
 
+<br/>
 
 ## USAGE
 
@@ -39,35 +43,35 @@ After cloning this repo onto the Open Enventory server:
 1. Clone this repository:
    
    ```bash
-   git clone https://github.com/khoivan88/find_sds.git    #if you have git
+   $ git clone https://github.com/khoivan88/find_sds.git    #if you have git
    # if you don't have git, you can download the zip file then unzip
    ```
 
 2. Change into the directory of the program:
    
    ```bash
-   cd find_sds
+   $ cd find_sds
    ```
 
 3. (Optional): create virtual environment for python to install dependency:
    Note: you can change `find_sds_venv` to another name if desired.
 
    ```bash
-   python3 -m venv find_sds_venv   # Create virtual environment
-   source find_sds_venv/bin/activate    # Activate the virtual environment on Linux
+   $ python3 -m venv find_sds_venv   # Create virtual environment
+   $ source find_sds_venv/bin/activate    # Activate the virtual environment on Linux
    # find_sds_venv/Scripts/activate    # Activate the virtual environment on Windows
    ```
 
 4. Install python dependencies:
    
    ```bash
-   pip install -r requirements.txt
+   $ pip install -r requirements.txt
    ```
 
 5. Example usage:
    
    ```bash
-   python3
+   $ python3
    ```
 
    ```python
@@ -113,6 +117,7 @@ After cloning this repo onto the Open Enventory server:
    (Optional): you can turn on debug mode (more error printing during search) using the following command:
    python find_sds/find_sds.py  --debug
 
+   >>>
    ```
 
 <br/>
