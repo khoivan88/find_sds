@@ -70,7 +70,7 @@ def find_sds(cas_list: List[str], download_path: str = None, pool_size: int = 10
     # Get the set of CAS for molecule missing sds:
     to_be_downloaded = set(cas_list)
 
-    # Step 2: downloading sds file
+    # Step 1: downloading sds file
     # Check if download path directory exists. If not, create it
     # https://stackoverflow.com/questions/12517451/automatically-creating-directories-with-file-output
     # https://docs.python.org/3/library/os.html#os.makedirs
@@ -93,7 +93,7 @@ def find_sds(cas_list: List[str], download_path: str = None, pool_size: int = 10
         print(traceback_str)
 
 
-    # Step 3: print out summary
+    # Step 2: print out summary
     finally:
         # Sometimes Pool worker return 'None', remove 'None' as the following
         # print(download_result)
@@ -160,7 +160,7 @@ def download_sds(cas_nr: str, download_path: str) -> Tuple[str, bool, Optional[s
         return cas_nr, downloaded, None
 
     else:
-        print('\nSearching {} ...'.format(file_name))
+        print('\nSearching for {} ...'.format(file_name))
         try:
             # print('CAS {} ...'.format(file_name))
             sds_source, full_url = extract_download_url_from_fisher(cas_nr) or (None, None)

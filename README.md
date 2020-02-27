@@ -2,14 +2,14 @@
 [![Updates](https://pyup.io/repos/github/khoivan88/find_sds/shield.svg)](https://pyup.io/repos/github/khoivan88/find_sds/)
 
 # FIND MISSING SAFETY DATA SHEET (SDS) 
-<br/>
-This program is designed to find and download safety data sheet of chemical 
-using CAS number.
+
+This program is designed to find and download safety data sheet of chemical using CAS number.
 
 <br/>
 
 
 ## CONTENTS
+
 - [FIND MISSING SAFETY DATA SHEET (SDS)](#find-missing-safety-data-sheet-sds)
   - [CONTENTS](#contents)
   - [DETAILS](#details)
@@ -17,7 +17,6 @@ using CAS number.
   - [USAGE](#usage)
   - [VERSIONS](#versions)
 
-<br/>
 
 ## DETAILS
 - Provided with a list of CAS numbers, this program searches and downloads safety
@@ -37,8 +36,6 @@ ten threads are used but it can be changed depends on running computer.
 <br/>
 
 ## USAGE
-
-After cloning this repo onto the Open Enventory server:
 
 1. Clone this repository:
    
@@ -84,27 +81,27 @@ After cloning this repo onto the Open Enventory server:
    >>> find_sds(cas_list=cas_list, download_path=download_path, pool_size=10)
    Downloading missing SDS files. Please wait!
    
-   Searching 96-47-9-SDS.pdf ...
+   Searching for 96-47-9-SDS.pdf ...
    
-   Searching 110-82-7-SDS.pdf ...
+   Searching for 110-82-7-SDS.pdf ...
 
-   Searching 141-78-6-SDS.pdf ...
+   Searching for 141-78-6-SDS.pdf ...
 
-   Searching 872-50-4-SDS.pdf ...
+   Searching for 872-50-4-SDS.pdf ...
 
-   Searching 00000-0-0-SDS.pdf ...
+   Searching for 00000-0-0-SDS.pdf ...
 
-   Searching 111-66-0-SDS.pdf ...
+   Searching for 111-66-0-SDS.pdf ...
 
-   Searching 110-54-3-SDS.pdf ...
+   Searching for 110-54-3-SDS.pdf ...
 
-   Searching 75-09-2-SDS.pdf ...
+   Searching for 75-09-2-SDS.pdf ...
 
-   Searching 68-12-2-SDS.pdf ...
+   Searching for 68-12-2-SDS.pdf ...
 
-   Searching 67-63-0-SDS.pdf ...
+   Searching for 67-63-0-SDS.pdf ...
 
-   Searching 109-89-7-SDS.pdf ...
+   Searching for 109-89-7-SDS.pdf ...
 
    Still missing SDS:
    {'00000-0-0'}
