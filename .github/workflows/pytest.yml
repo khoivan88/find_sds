@@ -44,9 +44,9 @@ jobs:
       run: |
         pip install pytest pytest-cov
         python -m pytest --cov=./ --cov-report=xml tests
-    - name: Create a package but do not deploy anywhere
-      run: |
-        pip install ./
+#     - name: Create a package but do not deploy anywhere
+#       run: |
+#         pip install ./
     - name: Upload coverage to codecov.io
       uses: codecov/codecov-action@v1
       with:
