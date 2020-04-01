@@ -1,5 +1,6 @@
 [![Python 3](https://pyup.io/repos/github/khoivan88/find_sds/python-3-shield.svg)](https://pyup.io/repos/github/khoivan88/find_sds/)
 [![Updates](https://pyup.io/repos/github/khoivan88/find_sds/shield.svg)](https://pyup.io/repos/github/khoivan88/find_sds/)
+[![codecov](https://codecov.io/gh/khoivan88/find_sds/branch/master/graph/badge.svg)](https://codecov.io/gh/khoivan88/find_sds)
 
 # FIND MISSING SAFETY DATA SHEET (SDS) 
 
