@@ -33,7 +33,7 @@ ten threads are used but it can be changed depends on running computer.
 
 ## REQUIREMENTS
 
-- Python 3+
+- Python 3.6+
 - [Dependencies](requirements.txt)
 
 <br/>
