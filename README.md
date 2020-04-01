@@ -1,6 +1,8 @@
 [![Python 3](https://pyup.io/repos/github/khoivan88/find_sds/python-3-shield.svg)](https://pyup.io/repos/github/khoivan88/find_sds/)
 [![Updates](https://pyup.io/repos/github/khoivan88/find_sds/shield.svg)](https://pyup.io/repos/github/khoivan88/find_sds/)
 [![codecov](https://codecov.io/gh/khoivan88/find_sds/branch/master/graph/badge.svg)](https://codecov.io/gh/khoivan88/find_sds)
+[![python version](https://img.shields.io/badge/python-v3.6%2B-blue)]()
+[![tested platforms](https://img.shields.io/badge/tested%20platform-win%20%7C%20osx%20%7C%20ubuntu-lightgrey)]()
 
 # FIND MISSING SAFETY DATA SHEET (SDS) 
 
