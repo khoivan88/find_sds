@@ -13,6 +13,7 @@ using multithreading
 
 import json
 import os
+import re
 import sys
 import traceback
 from functools import partial
@@ -22,7 +23,6 @@ from typing import Dict, List, Optional, Set, Tuple
 
 import requests
 from bs4 import BeautifulSoup
-
 
 debug = False
 # print out extra info in debug mode in case SDS is not found
@@ -152,7 +152,7 @@ def download_sds(cas_nr: str, download_path: str) -> Tuple[str, bool, Optional[s
     file_name = cas_nr + '-SDS.pdf'
     download_file = Path(download_path) / file_name
     # Check if the file not exists and download
-    #check file exists: https://stackoverflow.com/questions/82831/how-do-i-check-whether-a-file-exists
+    # check file exists: https://stackoverflow.com/questions/82831/how-do-i-check-whether-a-file-exists
     if download_file.exists():
         # print('{} already downloaded'.format(file_name))
         # print('.', end='')
@@ -164,6 +164,8 @@ def download_sds(cas_nr: str, download_path: str) -> Tuple[str, bool, Optional[s
         try:
             # print('CAS {} ...'.format(file_name))
             sds_source, full_url = extract_download_url_from_fisher(cas_nr) or (None, None)
+            if full_url is None:    # extract with chemblink
+                sds_source, full_url = extract_download_url_from_chemblink(cas_nr) or (None, None)
             if full_url is None:    # extract with chemicalsafety
                 sds_source, full_url = extract_download_url_from_chemicalsafety(cas_nr) or (None, None)
             if full_url is None:    # extract with fluorochem
@@ -185,12 +187,9 @@ def download_sds(cas_nr: str, download_path: str) -> Tuple[str, bool, Optional[s
                 # return 1
 
         except Exception as error:
-            # pass
-            # raise ValueError('{}: SDS not found from Fisher, VWR, or FluoroChem/Oakwood'.format(cas_nr))
             if debug:
                 traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
                 print(traceback_str)
-            # return 1
             return (cas_nr, downloaded, None)
 
 
@@ -219,8 +218,9 @@ def extract_download_url_from_fisher(cas_nr: str) -> Optional[Tuple[str, str]]:
 
     # get url from Fisher to get url to download sds file
     extract_info_url = 'https://www.fishersci.com/us/en/catalog/search/sds'
-    payload = {'selectLang': 'EN',
-            'msdsKeyword': cas_nr}
+    payload = {
+        'selectLang': 'EN',
+        'msdsKeyword': cas_nr}
 
     if debug:
         print('Searching on https://www.fishersci.com/us/en/catalog/search/sdshome.html')
@@ -247,6 +247,68 @@ def extract_download_url_from_fisher(cas_nr: str) -> Optional[Tuple[str, str]]:
                 full_url = 'https://www.fishersci.com' + rel_download_url
                 # print(f'rel_download_url is {rel_download_url}')
                 return 'Fisher', full_url
+
+    except Exception as error:
+        # print('.', end='')
+        if debug:
+            traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+            print(traceback_str)
+        # return None
+
+
+def extract_download_url_from_chemblink(cas_nr: str) -> Optional[Tuple[str, str]]:
+    """Search for url to download SDS for chemical with cas_nr
+    from https://www.chemblink.com/
+    
+    Parameters
+    ----------
+    cas_nr : str
+        CAS# for chemical of interest
+    
+    Returns
+    -------
+    Optional[Tuple[str, str]]
+        Tuple[str, str]:
+            the name of the SDS source
+            the URL from Fisher for SDS file
+        None: if URL cannot be found
+
+    Examples
+    --------
+    >>> print(extract_download_url_from_chemblink(cas_nr='681128-50-7'))
+    ('Matrix', 'https://www.chemblink.com/MSDS/MSDSFiles/681128-50-7_Matrix.pdf')
+    """
+    
+    global debug
+
+    headers = {
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
+    }
+
+    # get url from chemicalsafety.com to get url to download sds file
+    extract_info_url = f'https://www.chemblink.com/MSDS/{cas_nr}_MSDS.htm'
+
+    if debug:
+        print('Searching on https://www.chemblink.com')
+
+    try:
+        r1 = requests.get(extract_info_url, headers=headers, timeout=20)
+        # print(r1)
+    
+        # Check to see if give OK status (200) and not redirect
+        if r1.status_code == 200 and len(r1.history) == 0:
+            soup = BeautifulSoup(r1.text, 'html.parser')
+            if soup:
+                # Find all <a> tags with content "View / download", example: https://www.chemblink.com/MSDS/64-19-7_MSDS.htm
+                # Example of a correct <a> tag for SDS download: '<a href="/MSDS/MSDSFiles/64-19-7_Alfa-Aesar.pdf" class="blue" onclick="blur()" target="_blank">View / download</a>'
+                a_tags = soup.find_all('a', string=re.compile(r'View / download'))
+                if a_tags:
+                    domain = 'https://www.chemblink.com'
+                    sds_link = a_tags[0]['href']
+                    # Get source name from sds_link, example of sds_link href: '/MSDS/MSDSFiles/64-19-7_Alfa-Aesar.pdf'
+                    source = re.search(r'\S+_(\S*)\.pdf', sds_link).group(1)
+                    full_url = f'{domain}{sds_link}'
+                    return source, full_url
 
     except Exception as error:
         # print('.', end='')
@@ -292,7 +354,7 @@ def extract_download_url_from_chemicalsafety(cas_nr: str) -> Optional[Tuple[str,
         }
 
     if debug:
-        print('Searching on chemicalsafety.com/sds-search')
+        print('Searching on https://chemicalsafety.com/sds-search/')
 
     try:
         r1 = requests.post(extract_info_url, headers=headers, 
@@ -365,7 +427,7 @@ def extract_download_url_from_fluorochem(cas_nr: str) -> Optional[Tuple[str, str
         "groupFilters": []}
 
     if debug:
-        print('Searching on fluorochem.co.uk')
+        print('Searching on http://www.fluorochem.co.uk')
 
     try:
         r = requests.post(url, headers=headers, timeout=20, data=json.dumps(payload))
@@ -417,6 +479,10 @@ def download_sds_tci(cas_nr: str, download_path: str) -> Tuple[str, bool, Option
     downloading SDS from TCI requires session and cookies'''
 
     global debug
+
+    if debug:
+        print('Searching on https://www.tcichemicals.com/en/us/')
+
 
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36'}

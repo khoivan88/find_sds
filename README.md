@@ -60,7 +60,7 @@ ten threads are used but it can be changed depends on running computer.
    ```bash
    $ python3 -m venv find_sds_venv   # Create virtual environment
    $ source find_sds_venv/bin/activate    # Activate the virtual environment on Linux
-   # find_sds_venv/Scripts/activate    # Activate the virtual environment on Windows
+   # find_sds_venv\Scripts\activate    # Activate the virtual environment on Windows
    ```
 
 4. Install python dependencies:

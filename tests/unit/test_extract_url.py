@@ -5,7 +5,8 @@ import re
 import pytest
 from find_sds.find_sds import extract_download_url_from_fisher, \
                                     extract_download_url_from_chemicalsafety, \
-                                    extract_download_url_from_fluorochem
+                                    extract_download_url_from_fluorochem, \
+                                    extract_download_url_from_chemblink
 
 
 def mock_raise_exception():
@@ -133,4 +134,49 @@ def test_extract_url_from_fluorochem(cas_nr, expect):
 def test_extract_url_from_fluorochem_with_exception(monkeypatch, cas_nr, expect):
     monkeypatch.setattr('find_sds.find_sds.requests.post', mock_raise_exception)
     result = extract_download_url_from_fluorochem(cas_nr)
+    assert result == expect
+
+
+@pytest.mark.parametrize(
+    "cas_nr, expect", [
+        ('67-68-5', (
+            'Alfa-Aesar',
+            'https://www.chemblink.com/MSDS/MSDSFiles/67-68-5_Alfa-Aesar.pdf'
+            )
+        ),
+        ('64-19-7', (
+            'Alfa-Aesar',
+            'https://www.chemblink.com/MSDS/MSDSFiles/64-19-7_Alfa-Aesar.pdf'
+            )
+        ),
+        ('1450-76-6', (
+            'Sigma-Aldrich',
+            'https://www.chemblink.com/MSDS/MSDSFiles/1450-76-6_Sigma-Aldrich.pdf'
+            )
+        ),
+        ('681128-50-7', (
+            'Matrix',
+            'https://www.chemblink.com/MSDS/MSDSFiles/681128-50-7_Matrix.pdf'
+            )
+        ),
+        ('00000-00-0', (
+            None,
+            None
+            )
+        ),
+    ]
+)
+def test_extract_url_from_chemblink(cas_nr, expect):
+    source, url = extract_download_url_from_chemblink(cas_nr) or (None, None)
+    assert (source, url) == expect
+
+
+@pytest.mark.parametrize(
+    "cas_nr, expect", [
+        ('623-51-8', None)
+    ]
+)
+def test_extract_url_from_chemblink_with_exception(monkeypatch, cas_nr, expect):
+    monkeypatch.setattr('find_sds.find_sds.requests.get', mock_raise_exception)
+    result = extract_download_url_from_chemblink(cas_nr)
     assert result == expect

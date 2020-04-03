@@ -35,7 +35,9 @@ def test_download_sds_tci(tmpdir, monkeypatch, cas_nr, expect):
     "cas_nr, expect", [
         ('623-51-8', ('623-51-8', True, 'Fisher')),
         ('28697-53-2', ('28697-53-2', True, 'Fisher')),
-        ('1450-76-6', ('1450-76-6', True, 'ChemicalSafety')),
+        # ('1450-76-6', ('1450-76-6', True, 'ChemicalSafety')),
+        ('1450-76-6', ('1450-76-6', True, 'Sigma-Aldrich')),
+        ('681128-50-7', ('681128-50-7', True, 'Matrix')),
         ('00000-00-0', ('00000-00-0', False, None)),
     ]
 )

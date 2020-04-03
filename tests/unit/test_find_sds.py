@@ -35,6 +35,7 @@ def test_find_sds(tmpdir, monkeypatch):
         '96-47-9',
         '111-66-0',
         '110-54-3',
+        '681128-50-7',
     ]
 
     '''Changing the value of 'debug' variable to True for extra info'''
