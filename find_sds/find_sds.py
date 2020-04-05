@@ -1,8 +1,3 @@
-# import sys
-# print(sys.path)
-
-# #!/usr/bin/python
-
 """
 Author: Khoi Van, 2020
 
@@ -11,6 +6,7 @@ using multithreading
 """
 
 
+import argparse
 import json
 import os
 import re
@@ -24,13 +20,98 @@ from typing import Dict, List, Optional, Set, Tuple
 import requests
 from bs4 import BeautifulSoup
 
-debug = False
-# print out extra info in debug mode in case SDS is not found
-if len(sys.argv) == 2 and sys.argv[1] in ['--debug=True', '--debug=true', '--debug', '-d']:
-    debug = True
+import logging
+# import logzero
+# from logzero import logger
 
 
-def find_sds(cas_list: List[str], download_path: str = None, pool_size: int = 10) -> None:
+# debug = False
+
+class CustomFormatter(logging.Formatter): 
+    """Logging Formatter to add colors and count warning / errors"""
+
+    grey = "\x1b[90m"
+    yellow = "\x1b[33;21m"
+    red = "\x1b[31m"    # "\x1b[31;21m"
+    bold_red = "\x1b[31;1m"
+    reset = "\x1b[0m"
+    # format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
+    format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
+    format_info = "%(message)s"
+
+
+    FORMATS = {
+        logging.DEBUG: grey + format + reset,
+        logging.INFO: grey + format_info + reset,
+        logging.WARNING: yellow + format + reset,
+        logging.ERROR: red + format + reset,
+        logging.CRITICAL: bold_red + format + reset
+    }
+
+    def format(self, record):
+        log_fmt = self.FORMATS.get(record.levelno)
+        formatter = logging.Formatter(log_fmt)
+        return formatter.format(record)
+
+
+# create logger with 'spam_application'
+logger = logging.getLogger(__name__)
+# logger.setLevel(logging.WARNING)
+
+# create console handler with a higher log level
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+
+ch.setFormatter(CustomFormatter())
+
+logger.addHandler(ch)
+
+def logging_configure(level):
+    # logger.setLevel(logging.INFO)
+    # print(f'level is: {level}')
+    logger.setLevel(level.upper())
+    # print(f'level after set is: {logger.getEffectiveLevel()}')
+
+    # # create console handler with a higher log level
+    # ch = logging.StreamHandler()
+    # ch.setLevel(logging.DEBUG)
+
+    # ch.setFormatter(CustomFormatter())
+
+    # logger.addHandler(ch)
+
+# logFormatter = '%(asctime)s - %(levelname)s - %(message)s'
+# logging.basicConfig(format=logFormatter, level=logging.INFO)
+
+
+def parse_args(argv=None):
+    # Create the parser
+    my_parser = argparse.ArgumentParser(description='Find Safety Data Sheet (SDS) of chemical using CAS number')
+
+    # Add arguments
+    my_parser.add_argument('-d',
+                            '--debug',
+                            action='store_true',
+                            help='(optional) Display info on where the SDS was search from.')
+
+    # Execute parse_args()
+    args = my_parser.parse_args(argv)
+    return args
+
+
+# # # print out extra info in debug mode in case SDS is not found
+# if args.debug:
+#     logging.basicConfig(level=logging.DEBUG)
+#     # logger.setLevel(logging.DEBUG)
+#     # logzero.loglevel(logging.DEBUG)
+# else:
+#     logging.basicConfig(level=logging.WARNING)
+#     # logzero.loglevel(logging.WARNING)
+
+# logger.debug('Only shown in debug mode')
+# debug = False
+
+def find_sds(cas_list: List[str], download_path: str = None, pool_size: int = 10, debug_local=False) -> None:
     """Find safety data sheet (SDS) for list of CAS numbers
     
     Parameters
@@ -50,18 +131,30 @@ def find_sds(cas_list: List[str], download_path: str = None, pool_size: int = 10
     None:
         Summary of result is print to screen
     """
+    # global debug
 
-    global debug
+    # debug = debug_local
+    # print(f'find_sds debug = {debug}')
+    # print(f'find_sds debug_local = {debug_local}')
+
+    
+    # # debug = 
+    # if debug_local:
+    #     # logzero.loglevel(10)
+    #     logging_configure('debug')
+    # else:
+    #     # logzero.loglevel(50)
+    #     # logger.setLevel(logging.DEBUG)
+    #     logging_configure('warning')
+    # print(f'logger level: {logger.getEffectiveLevel()}')
+    
+    logger.warning('Some error')
 
     # If the list of CAS is empty, exit the program
     if not cas_list:
-        print('List of CAS numbers is empty!')
+        # print('List of CAS numbers is empty!')
+        logger.critical('List of CAS numbers is empty!')
         exit(0)
-
-    # # print out extra info in debug mode in case SDS is not found
-    # if len(sys.argv) == 2 and sys.argv[1] in ['--debug=True', '--debug=true', '--debug', '-d']:
-    #     debug = True
-    # print('debug value: {}'.format(debug))
 
     # Set download_path to 'SDS' folder inside the parent folder of python file
     if not download_path:
@@ -76,7 +169,8 @@ def find_sds(cas_list: List[str], download_path: str = None, pool_size: int = 10
     # https://docs.python.org/3/library/os.html#os.makedirs
     os.makedirs(download_path, exist_ok=True)
 
-    print('Downloading missing SDS files. Please wait!')
+    # print('Downloading missing SDS files. Please wait!')
+    logger.info('Downloading missing SDS files. Please wait!')
     
     download_result = []
     # # Using multithreading
@@ -90,7 +184,8 @@ def find_sds(cas_list: List[str], download_path: str = None, pool_size: int = 10
     except Exception as error:
         # if debug:
         traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
-        print(traceback_str)
+        # print(traceback_str)
+        logger.error(traceback_str)
 
 
     # Step 2: print out summary
@@ -116,9 +211,11 @@ def find_sds(cas_list: List[str], download_path: str = None, pool_size: int = 10
         print('\t{} SDS files downloaded.'.format(len(updated_sds)))
 
         # Advice user about turning on debug mode for more error printing
-        if not debug:
-            print('\n\n(Optional): you can turn on debug mode (more error printing during search) using the following command:')
-            print('python find_sds/find_sds.py  --debug\n')
+        # if not debug:
+        #     print('\n\n(Optional): you can turn on debug mode (more error printing during search) using the following command:')
+        #     print('python find_sds/find_sds.py  --debug\n')
+        logger.info('\n\n(Optional): you can turn on debug mode (more error printing during search) using the following command:')
+        logger.info('python find_sds/find_sds.py  --debug\n')
 
 
 def download_sds(cas_nr: str, download_path: str) -> Tuple[str, bool, Optional[str]]:
@@ -138,8 +235,11 @@ def download_sds(cas_nr: str, download_path: str) -> Tuple[str, bool, Optional[s
         - bool: True if SDS file downloaded or exists
         - Optional[str]: the name of the SDS source or None
     """
+    # print(f'download_sds debug = {debug}')
 
-    global debug
+    # print(f'`download_sds` logger level: {logger.getEffectiveLevel()}')
+    # global debug
+
     '''This function is used to extract a single sds file
     See here for more info: http://stackabuse.com/download-files-with-python/'''
 
@@ -187,9 +287,12 @@ def download_sds(cas_nr: str, download_path: str) -> Tuple[str, bool, Optional[s
                 # return 1
 
         except Exception as error:
-            if debug:
-                traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
-                print(traceback_str)
+            # if debug:
+            #     traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+            #     print(traceback_str)
+            traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+            logger.debug(traceback_str)
+
             return (cas_nr, downloaded, None)
 
 
@@ -210,8 +313,13 @@ def extract_download_url_from_fisher(cas_nr: str) -> Optional[Tuple[str, str]]:
             the URL from Fisher for SDS file
         None: if URL cannot be found
     """
+    # print(f'fisher debug = {debug}')
 
-    global debug
+    # global debug
+    # debug = eval(debug, globals={my_parser.debug})
+
+    # global logger
+    # print(f'Fisher logger level: {logger.getEffectiveLevel()}')
 
     headers = {
         'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'}
@@ -222,8 +330,9 @@ def extract_download_url_from_fisher(cas_nr: str) -> Optional[Tuple[str, str]]:
         'selectLang': 'EN',
         'msdsKeyword': cas_nr}
 
-    if debug:
-        print('Searching on https://www.fishersci.com/us/en/catalog/search/sdshome.html')
+    # if debug:
+    #     print('Searching on https://www.fishersci.com/us/en/catalog/search/sdshome.html')
+    logger.debug('Searching on https://www.fishersci.com/us/en/catalog/search/sdshome.html', )
 
     try:
         r = requests.get(extract_info_url, headers=headers, timeout=10, params=payload)
@@ -250,9 +359,12 @@ def extract_download_url_from_fisher(cas_nr: str) -> Optional[Tuple[str, str]]:
 
     except Exception as error:
         # print('.', end='')
-        if debug:
-            traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
-            print(traceback_str)
+        # if debug:
+        #     traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+        #     print(traceback_str)
+        traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+        logger.debug(traceback_str)
+
         # return None
 
 
@@ -279,7 +391,7 @@ def extract_download_url_from_chemblink(cas_nr: str) -> Optional[Tuple[str, str]
     ('Matrix', 'https://www.chemblink.com/MSDS/MSDSFiles/681128-50-7_Matrix.pdf')
     """
     
-    global debug
+    # global debug
 
     headers = {
         'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
@@ -288,8 +400,10 @@ def extract_download_url_from_chemblink(cas_nr: str) -> Optional[Tuple[str, str]
     # get url from chemicalsafety.com to get url to download sds file
     extract_info_url = f'https://www.chemblink.com/MSDS/{cas_nr}_MSDS.htm'
 
-    if debug:
-        print('Searching on https://www.chemblink.com')
+    # if debug:
+    #     print('Searching on https://www.chemblink.com')
+    logger.debug('Searching on https://www.chemblink.com')
+    
 
     try:
         r1 = requests.get(extract_info_url, headers=headers, timeout=20)
@@ -312,9 +426,12 @@ def extract_download_url_from_chemblink(cas_nr: str) -> Optional[Tuple[str, str]
 
     except Exception as error:
         # print('.', end='')
-        if debug:
-            traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
-            print(traceback_str)
+        # if debug:
+        #     traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+        #     print(traceback_str)
+        traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+        logger.debug(traceback_str)
+
         # return None
 
 
@@ -336,7 +453,7 @@ def extract_download_url_from_chemicalsafety(cas_nr: str) -> Optional[Tuple[str,
         None: if URL cannot be found
     """
 
-    global debug
+    # global debug
 
     headers = {
         'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36',
@@ -353,8 +470,10 @@ def extract_download_url_from_chemicalsafety(cas_nr: str) -> Optional[Tuple[str,
         "isContains": "0"
         }
 
-    if debug:
-        print('Searching on https://chemicalsafety.com/sds-search/')
+    # if debug:
+    #     print('Searching on https://chemicalsafety.com/sds-search/')
+    logger.debug('Searching on https://chemicalsafety.com/sds-search/')
+
 
     try:
         r1 = requests.post(extract_info_url, headers=headers, 
@@ -388,9 +507,11 @@ def extract_download_url_from_chemicalsafety(cas_nr: str) -> Optional[Tuple[str,
                     return 'ChemicalSafety', full_url
     except Exception as error:
         # print('.', end='')
-        if debug:
-            traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
-            print(traceback_str)
+        # if debug:
+        #     traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+        #     print(traceback_str)
+        traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+        logger.debug(traceback_str)
         # return None
 
 
@@ -412,7 +533,7 @@ def extract_download_url_from_fluorochem(cas_nr: str) -> Optional[Tuple[str, str
         None: if URL cannot be found
     """
 
-    global debug
+    # global debug
 
     headers = {
         'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36',
@@ -426,8 +547,9 @@ def extract_download_url_from_fluorochem(cas_nr: str) -> Optional[Tuple[str, str
         "showStructures": 'false',
         "groupFilters": []}
 
-    if debug:
-        print('Searching on http://www.fluorochem.co.uk')
+    # if debug:
+    #     print('Searching on http://www.fluorochem.co.uk')
+    logger.debug('Searching on http://www.fluorochem.co.uk')
 
     try:
         r = requests.post(url, headers=headers, timeout=20, data=json.dumps(payload))
@@ -452,9 +574,11 @@ def extract_download_url_from_fluorochem(cas_nr: str) -> Optional[Tuple[str, str
                 return 'Fluorochem', full_url
     except Exception as error:
         #     print('.', end='')
-        if debug:
-            traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
-            print(traceback_str)
+        # if debug:
+        #     traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+        #     print(traceback_str)
+        traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+        logger.debug(traceback_str)
         # return None
 
 
@@ -475,13 +599,15 @@ def download_sds_tci(cas_nr: str, download_path: str) -> Tuple[str, bool, Option
         - bool: True if SDS file downloaded or exists
         - str: the name of the SDS source or None
     """
+
     '''Note: this function cannot be combined with download_sds() because 
     downloading SDS from TCI requires session and cookies'''
 
-    global debug
+    # global debug
 
-    if debug:
-        print('Searching on https://www.tcichemicals.com/en/us/')
+    # if debug:
+    #     print('Searching on https://www.tcichemicals.com/en/us/')
+    logger.debug('Searching on https://www.tcichemicals.com/en/us/')
 
 
     headers = {
@@ -565,9 +691,11 @@ def download_sds_tci(cas_nr: str, download_path: str) -> Tuple[str, bool, Option
                                     return (cas_nr, downloaded, 'TCI')
     
     except Exception as error:
-        if debug:
-            traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
-            print(traceback_str)
+        # if debug:
+        #     traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+        #     print(traceback_str)
+        traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+        logger.debug(traceback_str)
         return (cas_nr, downloaded, None)
 
 
@@ -586,6 +714,39 @@ if __name__ == '__main__':
         '00000-0-0',
     ]
     download_path = 'SDS'
-    find_sds(cas_list=cas_list, download_path=download_path, pool_size=10)
+
+    # # Create the parser
+    # my_parser = argparse.ArgumentParser(description='Find Safety Data Sheet (SDS) of chemical using CAS number')
+
+    # # Add arguments
+    # my_parser.add_argument('-d',
+    #                         '--debug',
+    #                         action='store_true',
+    #                         help='(optional) Display info on where the SDS was search from.')
+
+    # # Execute parse_args()
+    # args = my_parser.parse_args()
+
+    # level = 'debug' if args.debug else 'info'
+    # level = 'warning'
+
+    # logging_configure(level)
+
+    # print out extra info in debug mode in case SDS is not found
+    # print(f'debug is {args.debug}')
+    # if args.debug:
+    #     print('set debug=True')
+    #     # logging.basicConfig(level=logging.DEBUG)
+    #     logger.setLevel(logging.DEBUG)
+    # else:
+    #     logging.basicConfig(level=logging.WARNING)
+
+    args = parse_args()
+    if args.debug:
+        logging_configure('debug')
+
+    find_sds(cas_list=cas_list, download_path=download_path, pool_size=1, debug_local=args.debug)
+    # find_sds(cas_list=cas_list, download_path=download_path, pool_size=1, debug=True)
+
 
     # find_sds(cas_list=cas_list, pool_size=10)
