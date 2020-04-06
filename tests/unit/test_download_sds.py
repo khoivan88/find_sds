@@ -33,8 +33,9 @@ def test_download_sds_tci(tmpdir, monkeypatch, cas_nr, expect):
 
 @pytest.mark.parametrize(
     "cas_nr, expect", [
-        ('623-51-8', ('623-51-8', True, 'Fisher')),
-        ('28697-53-2', ('28697-53-2', True, 'Fisher')),
+        # ('623-51-8', ('623-51-8', True, 'Fisher')),
+        ('623-51-8', ('623-51-8', True, 'Alfa-Aesar')),
+        ('28697-53-2', ('28697-53-2', True, 'Oakwood')),
         # ('1450-76-6', ('1450-76-6', True, 'ChemicalSafety')),
         ('1450-76-6', ('1450-76-6', True, 'Sigma-Aldrich')),
         ('681128-50-7', ('681128-50-7', True, 'Matrix')),
@@ -83,7 +84,8 @@ def test_download_sds_with_error(tmpdir, monkeypatch, cas_nr, expect):
     '''Changing the value of 'debug' variable to True for extra info'''
     monkeypatch.setattr("find_sds.find_sds.debug", True)
 
-    monkeypatch.setattr('find_sds.find_sds.extract_download_url_from_fisher', mock_raise_exception)
+    # monkeypatch.setattr('find_sds.find_sds.extract_download_url_from_fisher', mock_raise_exception)
+    monkeypatch.setattr('find_sds.find_sds.extract_download_url_from_chemblink', mock_raise_exception)
     
     result = download_sds(cas_nr, download_path=tmpdir) 
     assert result == expect
