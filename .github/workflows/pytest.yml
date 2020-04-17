@@ -91,6 +91,7 @@ jobs:
 #         pip install ./
     - name: Upload coverage to codecov.io
       uses: codecov/codecov-action@v1.0.6
+      if: startsWith(runner.os, 'Linux')
       with:
         # CODECOV_TOKEN is repo-specific and it must be copied from codecov.io for the repository
         # and stored as a secret in GitHub's repository Settings > Secrets. CODECOV_TOKEN does not
