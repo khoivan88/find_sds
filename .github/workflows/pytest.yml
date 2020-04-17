@@ -35,7 +35,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Display Python version
       run: python -c "import sys; print(sys.version)"
-    - name: Cache pip
+    - name: Cache pip Ubuntu
 #       uses: actions/cache@v1
 #       with:
 #         path: ~/.cache/pip # This path is specific to Ubuntu
@@ -52,6 +52,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
 
+    - name: Cache pip MacOS
       uses: actions/cache@v1
       if: startsWith(runner.os, 'macOS')
       with:
@@ -60,6 +61,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
 
+    - name: Cache pip Windows
       uses: actions/cache@v1
       if: startsWith(runner.os, 'Windows')
       with:
