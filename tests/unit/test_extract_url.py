@@ -82,7 +82,7 @@ def test_extract_url_from_chemicalsafety(cas_nr, expect):
     source, url = extract_download_url_from_chemicalsafety(cas_nr) or (None, None)
     # Chemicalsafety return url with changing `...&unique=some-number`. 
     # Use regex to remove this number for consistent result
-    url = re.sub(r'(?<=unique=)\d+$', '', url) if url else None
+    url = re.sub(r'(?<=unique=).+$', '', url) if url else None
     assert (source, url) == expect
 
 
