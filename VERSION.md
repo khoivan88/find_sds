@@ -2,31 +2,31 @@
 
 ## Version 0.7.0 (2020-04-02)
 
-- Feat: Add ChemBlink as another source for SDS
+- Feat: Add [ChemBlink](https://www.chemblink.com) as another source for SDS
 - Feat: Add tests for ChemBlink
 
 
 ## Version 0.6 (2020-02-12)
 
-- Add TCI as another source for SDS
+- Add [TCI](https://www.tcichemicals.com/en/us/) as another source for SDS
 - Code clean up
 - Add tests for SDS downloading functions
 
 ## Version 0.5
 
 - Incorporat result from Fluorochem
+- Fixing bug with existing default_safety_sheet_url and default_safety_sheet_mime
+by setting them to NULL
 
 ## Version 0.4
 
-- Test using cheminfo.org/webservices by extracting catalog number from 
-http://www.fluorochem.co.uk/
+- Testing using cheminfo.org/webservices by extracting catalog number from [Fluorochem](http://www.fluorochem.co.uk/)
 
 ## Version 0.3
 
 - Refractor extracting url download into its own method
-- Add extracting url download from chemicalsafety.com
+- Added extracting url download from [Chemicalsafety](https://chemicalsafety.com/sds-search/)
 
 ## Version 0.2
 
-- Switch to extracting data from https://www.fishersci.com because Chemexper
-has limited requests
+- Switch to extracting data from [Fisher Scientific](https://www.fishersci.com/us/en/catalog/search/sdshome.html) because Chemexper has limited requests
