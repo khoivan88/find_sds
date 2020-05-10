@@ -6,7 +6,8 @@ import pytest
 from find_sds.find_sds import extract_download_url_from_fisher, \
                                     extract_download_url_from_chemicalsafety, \
                                     extract_download_url_from_fluorochem, \
-                                    extract_download_url_from_chemblink
+                                    extract_download_url_from_chemblink, \
+                                    extract_download_url_from_vwr
 
 
 def mock_raise_exception():
@@ -80,7 +81,7 @@ def test_extract_url_from_fisher_with_exception(monkeypatch, cas_nr, expect):
 )
 def test_extract_url_from_chemicalsafety(cas_nr, expect):
     source, url = extract_download_url_from_chemicalsafety(cas_nr) or (None, None)
-    # Chemicalsafety return url with changing `...&unique=some-number`. 
+    # Chemicalsafety return url with changing `...&unique=some-number`.
     # Use regex to remove this number for consistent result
     url = re.sub(r'(?<=unique=).+$', '', url) if url else None
     assert (source, url) == expect
@@ -179,4 +180,59 @@ def test_extract_url_from_chemblink(cas_nr, expect):
 def test_extract_url_from_chemblink_with_exception(monkeypatch, cas_nr, expect):
     monkeypatch.setattr('find_sds.find_sds.requests.get', mock_raise_exception)
     result = extract_download_url_from_chemblink(cas_nr)
+    assert result == expect
+
+
+@pytest.mark.parametrize(
+    "cas_nr, expect", [
+        # ('67-68-5', (
+        #     'TCI America',
+        #     'https://us.vwr.com/assetsvc/asset/en_US/id/17035574/contents'
+        #     )
+        # ),
+        ('64-19-7', (
+            'Acros Organics',
+            'https://us.vwr.com/assetsvc/asset/en_US/id/17991993/contents'
+            )
+        ),
+        ('1450-76-6', (
+            'TCI America',
+            'https://us.vwr.com/assetsvc/asset/en_US/id/16979825/contents'
+            )
+        ),
+        ('885051-07-0', (
+            'TCI America',
+            'https://us.vwr.com/assetsvc/asset/en_US/id/18065210/contents'
+            )
+        ),
+        ('623-51-8', (
+            'TCI America',
+            'https://us.vwr.com/assetsvc/asset/en_US/id/16825892/contents'
+            )
+        ),
+        ('681128-50-7', (
+            None,
+            None
+            )
+        ),
+        ('00000-00-0', (
+            None,
+            None
+            )
+        ),
+    ]
+)
+def test_extract_url_from_vwr(cas_nr, expect):
+    source, url = extract_download_url_from_vwr(cas_nr) or (None, None)
+    assert (source, url) == expect
+
+
+@pytest.mark.parametrize(
+    "cas_nr, expect", [
+        ('623-51-8', None)
+    ]
+)
+def test_extract_url_from_vwr_with_exception(monkeypatch, cas_nr, expect):
+    monkeypatch.setattr('find_sds.find_sds.requests.session', mock_raise_exception)
+    result = extract_download_url_from_vwr(cas_nr)
     assert result == expect
