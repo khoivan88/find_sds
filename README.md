@@ -5,7 +5,7 @@
 [![tested platforms](https://img.shields.io/badge/tested%20platform-win%20%7C%20osx%20%7C%20ubuntu-lightgrey)]()
 
 
-# FIND MISSING SAFETY DATA SHEET (SDS) 
+# FIND MISSING SAFETY DATA SHEET (SDS)
 
 This program is designed to find and download safety data sheet of chemical using CAS number.
 
@@ -42,14 +42,14 @@ ten threads are used but it can be changed depends on running computer.
 ## USAGE
 
 1. Clone this repository:
-   
+
    ```bash
    $ git clone https://github.com/khoivan88/find_sds.git    #if you have git
    # if you don't have git, you can download the zip file then unzip
    ```
 
 2. Change into the directory of the program:
-   
+
    ```bash
    $ cd find_sds
    ```
@@ -58,21 +58,21 @@ ten threads are used but it can be changed depends on running computer.
    Note: you can change `find_sds_venv` to another name if desired.
 
    ```bash
-   $ python3 -m venv find_sds_venv   # Create virtual environment
+   $ python -m venv find_sds_venv   # Create virtual environment
    $ source find_sds_venv/bin/activate    # Activate the virtual environment on Linux
    # find_sds_venv\Scripts\activate    # Activate the virtual environment on Windows
    ```
 
 4. Install python dependencies:
-   
+
    ```bash
    $ pip install -r requirements.txt
    ```
 
 5. Example usage:
-   
+
    ```bash
-   $ python3
+   $ python
    ```
 
    ```python
@@ -84,9 +84,9 @@ ten threads are used but it can be changed depends on running computer.
    >>> download_path = 'SDS'
    >>> find_sds(cas_list=cas_list, download_path=download_path, pool_size=10)
    Downloading missing SDS files. Please wait!
-   
+
    Searching for 96-47-9-SDS.pdf ...
-   
+
    Searching for 110-82-7-SDS.pdf ...
 
    Searching for 141-78-6-SDS.pdf ...
