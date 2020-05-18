@@ -29,6 +29,13 @@ SDS will be downloaded into folder 'SDS' inside folder `find_sds`.
 - This program uses **multithreading** to speed up the download process. By default,
 ten threads are used but it can be changed depends on running computer.
 - Downloaded SDS are saved as '<CAS_Number>-SDS.pdf'
+- Lookup databases include:
+  - [ChemBlink](https://www.chemblink.com/)
+  - [VWR](https://us.vwr.com/store/search/searchMSDS.jsp)
+  - [Fisher Scientific](https://www.fishersci.com/us/en/catalog/search/sdshome.html)
+  - [TCI Chemicals](www.tcichemicals.com)
+  - [ChemicalSafety](https://chemicalsafety.com/sds-search/)
+  - [Fluorochem](http://www.fluorochem.co.uk/)
 
 
 
