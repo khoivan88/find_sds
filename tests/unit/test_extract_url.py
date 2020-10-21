@@ -240,7 +240,7 @@ def test_extract_url_from_vwr_with_exception(monkeypatch, cas_nr, expect):
     assert result == expect
 
 
-
+@pytest.mark.xfail    # source might change leading to slightly different URL
 @pytest.mark.parametrize(
     "cas_nr, expect", [
         ('67-68-5', (
