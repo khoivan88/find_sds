@@ -50,6 +50,9 @@ def find_sds(cas_list: List[str], download_path: str = None, pool_size: int = 10
     None:
         Summary of result is print to screen
     """
+    import timeit
+
+    start = timeit.default_timer()
 
     # global debug
 
@@ -120,6 +123,11 @@ def find_sds(cas_list: List[str], download_path: str = None, pool_size: int = 10
             print('\n\n(Optional): you can turn on debug mode (more error printing during search) using the following command:')
             print('python find_sds/find_sds.py  --debug\n')
 
+        # All the program statements
+        stop = timeit.default_timer()
+        execution_time = stop - start
+
+        print(f"Program executed in {str(execution_time)} seconds.") # It returns time in seconds
 
 def download_sds(cas_nr: str, download_path: str) -> Tuple[str, bool, Optional[str]]:
     """Download SDS from variety of sources
@@ -652,18 +660,13 @@ def extract_download_url_from_tci(cas_nr: str) -> Optional[Tuple[str, str]]:
 
 
 if __name__ == '__main__':
-    cas_list = [
-        '141-78-6',
-        '110-82-7',
-        '67-63-0',
-        '75-09-2',
-        '109-89-7',
-        '872-50-4',
-        '68-12-2',
-        '96-47-9',
-        '111-66-0',
-        '110-54-3',
-        '00000-0-0',
+    cas_list = ['10257-55-3', '106-93-4', '110489-05-9', '111-87-5', '124-73-2',
+        '1323-83-7', '139-02-6', '15022-08-9', '18586-22-6', '1859-08-1',
+        '2156-97-0', '3687-18-1', '39389-20-3', '558-20-3', '63316-43-8',
+        '68441-33-8', '70900-21-9', '7440-06-4', '75-47-8', '75-69-4',
+        '853-68-9', '141-78-6', '110-82-7', '67-63-0', '75-09-2', '109-89-7',
+        '872-50-4', '68-12-2', '96-47-9', '111-66-0', '110-54-3',
+        '00000-00-0',     # invalid CAS number, or unknown CAS
     ]
     download_path = 'SDS'
     find_sds(cas_list=cas_list, download_path=download_path, pool_size=10)
