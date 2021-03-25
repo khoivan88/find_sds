@@ -20,12 +20,12 @@ def mock_raise_exception():
     "cas_nr, expect", [
         ('623-51-8', (
             'Fisher',
-            'https://www.fishersci.com/store/msds?partNumber=AAA1432106&productDescription=ethyl-mercaptoacetate-&vendorId=VN00024248&keyword=true&countryCode=US&language=en'
+            'https://www.fishersci.com/store/msds?partNumber=AC118670025&productDescription=ethyl-mercaptoacetate--acros-organicstrade&vendorId=VN00032119&keyword=true&countryCode=US&language=en'
             )
         ),
         ('28697-53-2', (
             'Fisher',
-            'https://www.fishersci.com/store/msds?partNumber=S25650&productDescription=darabinose&vendorId=VN00115888&keyword=true&countryCode=US&language=en'
+            'https://www.fishersci.com/store/msds?partNumber=S25650&productDescription=fisher-science-educationtrade-darabinose&vendorId=VN00115888&keyword=true&countryCode=US&language=en'
             )
         ),
         ('1450-76-6', (
@@ -65,12 +65,12 @@ def test_extract_url_from_fisher_with_exception(monkeypatch, cas_nr, expect):
         ),
         ('28697-53-2', (
             'ChemicalSafety',
-            'http://sds.chemicalsafety.com/sds/pda/msds/getpdf.ashx?action=msdsdocument&auth=200C200C200C200C2008207A200D2078200C200C200C200C200C200C200C200C200C2008&param1=ZmRwLjFfMjQ3MDYyMDNORQ==&unique='
+            'http://sds.chemicalsafety.com/sds/pda/msds/getpdf.ashx?action=msdsdocument&auth=200C200C200C200C2008207A200D2078200C200C200C200C200C200C200C200C200C2008&param1=ZmRwLjFfMTQ2NzY2MDNORQ==&unique='
             )
         ),
         ('1450-76-6', (
             'ChemicalSafety',
-            'http://sds.chemicalsafety.com/sds/pda/msds/getpdf.ashx?action=msdsdocument&auth=200C200C200C200C2008207A200D2078200C200C200C200C200C200C200C200C200C2008&param1=ZmRwLjFfNTI5ODU1MDNORQ==&unique='
+            'http://sds.chemicalsafety.com/sds/pda/msds/getpdf.ashx?action=msdsdocument&auth=200C200C200C200C2008207A200D2078200C200C200C200C200C200C200C200C200C2008&param1=ZmRwLjFfODA5NTg4MDNORQ==&unique='
             )
         ),
         ('00000-00-0', (
@@ -245,12 +245,12 @@ def test_extract_url_from_vwr_with_exception(monkeypatch, cas_nr, expect):
     "cas_nr, expect", [
         ('67-68-5', (
             'TCI',
-            'https://www.tcichemicals.com/US/en/sds/D0798_US_EN.pdf'
+            'https://www.tcichemicals.com/US/en/sds/D5293_US_EN.pdf'
             )
         ),
         ('64-19-7', (
             'TCI',
-            'https://www.tcichemicals.com/US/en/sds/A2035_US_EN.pdf'
+            'https://www.tcichemicals.com/US/en/sds/A3377_US_EN.pdf'
             )
         ),
         ('1450-76-6', (
