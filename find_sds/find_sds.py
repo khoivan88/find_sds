@@ -4,7 +4,7 @@
 # #!/usr/bin/python
 
 """
-Author: Khoi Van, 2020
+Author: Khoi Van, 2020 - 2021
 
 This program is designed to find and download safety data sheet (SDS)
 using multithreading
@@ -50,6 +50,9 @@ def find_sds(cas_list: List[str], download_path: str = None, pool_size: int = 10
     None:
         Summary of result is print to screen
     """
+    import timeit
+
+    start = timeit.default_timer()
 
     # global debug
 
@@ -120,6 +123,11 @@ def find_sds(cas_list: List[str], download_path: str = None, pool_size: int = 10
             print('\n\n(Optional): you can turn on debug mode (more error printing during search) using the following command:')
             print('python find_sds/find_sds.py  --debug\n')
 
+        # All the program statements
+        stop = timeit.default_timer()
+        execution_time = stop - start
+
+        print(f"Program executed in {str(execution_time)} seconds.") # It returns time in seconds
 
 def download_sds(cas_nr: str, download_path: str) -> Tuple[str, bool, Optional[str]]:
     """Download SDS from variety of sources
@@ -143,9 +151,6 @@ def download_sds(cas_nr: str, download_path: str) -> Tuple[str, bool, Optional[s
     '''This function is used to extract a single sds file
     See here for more info: http://stackabuse.com/download-files-with-python/'''
 
-    headers = {
-        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'}
-
     # Set initial return value for if SDS is downloaded (or existed)
     downloaded = False
 
@@ -161,6 +166,9 @@ def download_sds(cas_nr: str, download_path: str) -> Tuple[str, bool, Optional[s
 
     else:
         print('\nSearching for {} ...'.format(file_name))
+        headers = {
+            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36'}
+
         try:
             # print('CAS {} ...'.format(file_name))
             sds_source, full_url = extract_download_url_from_chemblink(cas_nr) or \
@@ -170,6 +178,7 @@ def download_sds(cas_nr: str, download_path: str) -> Tuple[str, bool, Optional[s
                 extract_download_url_from_chemicalsafety(cas_nr) or \
                 extract_download_url_from_fluorochem(cas_nr) or \
                 (None, None)
+            # sds_source, full_url = extract_download_url_from_tci(cas_nr)
 
             # print('full url is: {}'.format(full_url))
             if full_url:    # extract with chemicalsafety
@@ -220,7 +229,7 @@ def extract_download_url_from_chemblink(cas_nr: str) -> Optional[Tuple[str, str]
     # global debug
 
     headers = {
-        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36'
     }
 
     # get url from chemicalsafety.com to get url to download sds file
@@ -282,7 +291,7 @@ def extract_download_url_from_vwr(cas_nr: str) -> Optional[Tuple[str, str]]:
 
     adv_search_url = 'https://us.vwr.com/store/msds'.format(cas_nr)
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36',
     }
     params = {
         'keyword' : cas_nr
@@ -355,7 +364,7 @@ def extract_download_url_from_fisher(cas_nr: str) -> Optional[Tuple[str, str]]:
     # global debug
 
     headers = {
-        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'}
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36'}
 
     # get url from Fisher to get url to download sds file
     extract_info_url = 'https://www.fishersci.com/us/en/catalog/search/sds'
@@ -418,18 +427,20 @@ def extract_download_url_from_chemicalsafety(cas_nr: str) -> Optional[Tuple[str,
     # global debug
 
     headers = {
-        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36',
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36',
         'accept-encoding': 'gzip, deflate, br',
         'content-type': 'application/json'}
     # get url from chemicalsafety.com to get url to download sds file
     extract_info_url = 'https://chemicalsafety.com/sds1/retriever.php'
     form1 = {
         "action": "search",
+        "bee": "honey",
         "p1": "MSMSDS.COMMON|",
         "p2": "MSMSDS.MANUFACT|",
         "p3": "MSCHEM.CAS|" + cas_nr,
-        "hostName": "chemicalsafety.com",
-        "isContains": "0"
+        "hostName": "cs website",
+        "isContains": "0",
+        'searchUrl': "",
         }
 
     if debug:
@@ -447,10 +458,12 @@ def extract_download_url_from_chemicalsafety(cas_nr: str) -> Optional[Tuple[str,
                     msds_id = item[0]
                     break
             if msds_id != '':
+                sds_viewer_url = 'https://chemicalsafety.com/sds1/sdsviewer.php'
                 form2 = {"action": "msdsdetail",
                         "p1": msds_id,
                         "p2": "",
                         "p3": "",
+                        "bee": "chemsafe",
                         "isContains": ""}
                 r2 = requests.post(extract_info_url, headers=headers,
                         data=json.dumps(form2), timeout=20)
@@ -458,12 +471,13 @@ def extract_download_url_from_chemicalsafety(cas_nr: str) -> Optional[Tuple[str,
                 #Confirm the msds_id and cas_nr:
                 if msds_id == result[0] and cas_nr == result[3]:
                     sds_pdf_file = result[10].rstrip(',')
-                    form3 = {"action":"getpdfurl","p1":sds_pdf_file,"p2":"","p3":"","isContains":""}
+                    form3 = {"action":"getpdfurl","p1":sds_pdf_file,"p2":"","p3":"", "bee": "chemsafe", "isContains":""}
                     r3 = requests.post(extract_info_url, headers=headers, data=json.dumps(form3), timeout=20)
                     #Get the url
                     # Translate curl to python https://curl.trillworks.com/
                     # urllib.parse doc: https://docs.python.org/3.6/library/urllib.parse.html
                     full_url = r3.json()['url']
+                    # print(f'{full_url=}'); exit()
                     return 'ChemicalSafety', full_url
     except Exception as error:
         # print('.', end='')
@@ -494,7 +508,7 @@ def extract_download_url_from_fluorochem(cas_nr: str) -> Optional[Tuple[str, str
     # global debug
 
     headers = {
-        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36',
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36',
         'Content-Type': 'application/json', }
 
     url = 'http://www.fluorochem.co.uk/Products/Search'
@@ -555,7 +569,7 @@ def extract_download_url_from_tci(cas_nr: str) -> Optional[Tuple[str, str]]:
     global debug
 
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36',
     }
 
     adv_search_url = 'https://www.tcichemicals.com/US/en/search/?text={}&resulttype=product'.format(cas_nr)
@@ -580,7 +594,7 @@ def extract_download_url_from_tci(cas_nr: str) -> Optional[Tuple[str, str]]:
 
                 # Get the token, required for POST request for SDS file name later
                 csrf_token = html.find('input', attrs={'name': 'CSRFToken'})['value']
-                # print(csrf_token)
+                # print(f'{csrf_token=}')
 
                 region_code = html.find_all(string=re.compile(r'(encodedContextPath[^;]+?;)'))
                 # print(region_code[0])
@@ -595,7 +609,7 @@ def extract_download_url_from_tci(cas_nr: str) -> Optional[Tuple[str, str]]:
                 if product_category.text == 'Products':
                     hit_count = re.search(r'\((\d+)\)',
                                         html.select(f'{product_cat_css} + span.facet__value__count')[0].text)[1]
-                # print(hit_count)
+                # print(f'{hit_count=}')
 
                 # Check to make sure that there is at least 1 hit
                 if hit_count:
@@ -605,13 +619,13 @@ def extract_download_url_from_tci(cas_nr: str) -> Optional[Tuple[str, str]]:
 
                     # Find the CAS# for the first hit
                     returned_cas = first_hit_div['data-casno']
-                    # print(returned_cas)
+                    # print(f'{returned_cas=}')
 
                     # Confirm the first hit has the same CAS# as search chemical
                     if returned_cas == cas_nr:
                         # Get this TCI product number as follow:
                         prd_id = first_hit_div['data-id']
-                        # print(prd_id)
+                        # print(f'{prd_id=}')
 
                         # Check if TCI product number is found:
                         if prd_id:
@@ -623,13 +637,14 @@ def extract_download_url_from_tci(cas_nr: str) -> Optional[Tuple[str, str]]:
                                 'selectedCountry': 'US',
                                 'CSRFToken': f'{csrf_token}'
                             }
-                            file_name_res = s.post(sds_url, timeout=15, data=data)
-                            # print(file_name_res)
+                            file_name_res = s.post(sds_url, headers=headers, timeout=15, data=data)
+                            # print(f'{file_name_res=}')
                             # print(file_name_res.headers)
-                            # print(file_name_res.headers.get('content-disposition'))
+                            # print(f"{file_name_res.headers.get('content-disposition')=}")
 
                             # Get the SDS file name using the return header, in "content-disposition"
                             res_file = re.search(r'filename=(\S+)$', file_name_res.headers.get('content-disposition'))[1]
+                            # print(f"{res_file=}")
 
                             # url = f'https://www.tcichemicals.com/US/en/sds/{prd_id.upper()}_US_EN.pdf'
                             # An example of an sds url: 'https://www.tcichemicals.com/US/en/sds/B3296_US_EN.pdf'
@@ -645,18 +660,13 @@ def extract_download_url_from_tci(cas_nr: str) -> Optional[Tuple[str, str]]:
 
 
 if __name__ == '__main__':
-    cas_list = [
-        '141-78-6',
-        '110-82-7',
-        '67-63-0',
-        '75-09-2',
-        '109-89-7',
-        '872-50-4',
-        '68-12-2',
-        '96-47-9',
-        '111-66-0',
-        '110-54-3',
-        '00000-0-0',
+    cas_list = ['10257-55-3', '106-93-4', '110489-05-9', '111-87-5', '124-73-2',
+        '1323-83-7', '139-02-6', '15022-08-9', '18586-22-6', '1859-08-1',
+        '2156-97-0', '3687-18-1', '39389-20-3', '558-20-3', '63316-43-8',
+        '68441-33-8', '70900-21-9', '7440-06-4', '75-47-8', '75-69-4',
+        '853-68-9', '141-78-6', '110-82-7', '67-63-0', '75-09-2', '109-89-7',
+        '872-50-4', '68-12-2', '96-47-9', '111-66-0', '110-54-3',
+        '00000-00-0',     # invalid CAS number, or unknown CAS
     ]
     download_path = 'SDS'
     find_sds(cas_list=cas_list, download_path=download_path, pool_size=10)
