@@ -4,5 +4,6 @@ idna==3.1
 chardet==4.0.0
 certifi==2020.12.5
 requests==2.25.1
+soupsieve==2.2.1
 beautifulsoup4==4.9.3
 pytest==6.2.2
