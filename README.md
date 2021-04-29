@@ -86,7 +86,7 @@ ten threads are used but it can be changed depends on running computer.
    >>> from find_sds.find_sds import find_sds
    >>> cas_list = ['141-78-6', '110-82-7', '67-63-0', '75-09-2', '109-89-7',
    ...     '872-50-4', '68-12-2', '96-47-9', '111-66-0', '110-54-3',
-   ...     '00000-0-0',    # invalid CAS number, or unknow CAS
+   ...     '00000-00-0',    # invalid CAS number, or unknown CAS
    ... ]
    >>> download_path = 'SDS'
    >>> find_sds(cas_list=cas_list, download_path=download_path, pool_size=10)
@@ -115,7 +115,7 @@ ten threads are used but it can be changed depends on running computer.
    Searching for 109-89-7-SDS.pdf ...
 
    Still missing SDS:
-   {'00000-0-0'}
+   {'00000-00-0'}
 
    Summary:
            1 SDS files are missing.

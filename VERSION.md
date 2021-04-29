@@ -1,5 +1,10 @@
 # DETAILS
 
+## Version 0.10.0 (2021-03-24)
+
+- Fix: Fix for TCI, ChemicalSafety
+- Feat: Update tests
+
 ## Version 0.9.0 (2020-05-18)
 
 - Feat: Add [TCI](https://www.tcichemicals.com/) as another source for SDS
