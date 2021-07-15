@@ -3,7 +3,7 @@ urllib3==1.26.4
 idna==3.1
 chardet==4.0.0
 certifi==2020.12.5
-requests==2.25.1
+requests==2.26.0
 soupsieve==2.2.1
 beautifulsoup4==4.9.3
 pytest==6.2.3
