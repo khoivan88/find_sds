@@ -6,4 +6,4 @@ requests==2.26.0
 certifi==2021.5.30
 soupsieve==2.2.1
 beautifulsoup4==4.9.3
-pytest==6.2.3
+pytest==6.2.5
