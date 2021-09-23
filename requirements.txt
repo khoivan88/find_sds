@@ -1,5 +1,5 @@
 beautifulsoup4==4.10.0
-urllib3==1.26.6
+urllib3==1.26.7
 idna==3.2
 chardet==4.0.0
 requests==2.26.0
