@@ -1,4 +1,4 @@
-beautifulsoup4==4.10.0
+beautifulsoup4==4.12.1
 urllib3==1.26.6
 idna==3.2
 chardet==4.0.0
