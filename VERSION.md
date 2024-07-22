@@ -1,5 +1,12 @@
 # DETAILS
 
+## Version 0.11.0 (2024-07-22)
+
+- Update to using Python 3.10+ (because of stacktrace)
+- Update stacktrace printing
+- Fix: Fix for TCI, ChemicalSafety, VWR, ChemBlink, Fluorochem
+- Feat: Update tests
+
 ## Version 0.10.0 (2021-03-24)
 
 - Fix: Fix for TCI, ChemicalSafety
