@@ -20,12 +20,12 @@ def mock_raise_exception():
     "cas_nr, expect", [
         ('623-51-8', (
             'Fisher',
-            'https://www.fishersci.com/store/msds?partNumber=AC118670025&productDescription=ethyl-mercaptoacetate--acros-organicstrade&vendorId=VN00032119&keyword=true&countryCode=US&language=en'
+            'https://www.fishersci.com/store/msds?partNumber=AAA1432106&productDescription=ethyl-mercaptoacet-g&vendorId=VN00024248&keyword=true&countryCode=US&language=en'
             )
         ),
         ('28697-53-2', (
             'Fisher',
-            'https://www.fishersci.com/store/msds?partNumber=S25650&productDescription=fisher-science-educationtrade-darabinose&vendorId=VN00115888&keyword=true&countryCode=US&language=en'
+            'https://www.fishersci.com/store/msds?partNumber=AC161450250&productDescription=d-arabinose-pa-gr&vendorId=VN00032119&keyword=true&countryCode=US&language=en'
             )
         ),
         ('1450-76-6', (
@@ -59,19 +59,26 @@ def test_extract_url_from_fisher_with_exception(monkeypatch, cas_nr, expect):
 @pytest.mark.parametrize(
     "cas_nr, expect", [
         ('623-51-8', (
-            'ChemicalSafety',
-            'http://sds.chemicalsafety.com/sds/pda/msds/getpdf.ashx?action=msdsdocument&auth=200C200C200C200C2008207A200D2078200C200C200C200C200C200C200C200C200C2008&param1=ZmRwLjFfNzM2MzAwMDNORQ==&unique='
+            # 'ChemicalSafety',
+            # 'http://sds.chemicalsafety.com/sds/pda/msds/getpdf.ashx?action=msdsdocument&auth=200C200C200C200C2008207A200D2078200C200C200C200C200C200C200C200C200C2008&param1=ZmRwLjFfNzM2MzAwMDNORQ==&unique='
+            # 'Ambeed, Inc.', 'https://file.ambeed.com/static/upload/prosds/am/306/SDS-A305712.pdf',
+            'Tokyo Chemical Industry Co., Ltd.', 'https://www.tcichemicals.com/US/en/sds/T0211_US_EN.pdf'
             )
         ),
         ('28697-53-2', (
-            'ChemicalSafety',
-            'http://sds.chemicalsafety.com/sds/pda/msds/getpdf.ashx?action=msdsdocument&auth=200C200C200C200C2008207A200D2078200C200C200C200C200C200C200C200C200C2008&param1=ZmRwLjFfMTQ2NzY2MDNORQ==&unique='
+            # 'ChemicalSafety',
+            # 'http://sds.chemicalsafety.com/sds/pda/msds/getpdf.ashx?action=msdsdocument&auth=200C200C200C200C2008207A200D2078200C200C200C200C200C200C200C200C200C2008&param1=ZmRwLjFfMTQ2NzY2MDNORQ==&unique='
+            # 'ChemScene LLC', 'https://file.ambeed.com/static/upload/prosds/am/178/SDS-A177089.pdf',
+            'Ambeed, Inc.', 'https://file.ambeed.com/static/upload/prosds/am/178/SDS-A177089.pdf',
             )
         ),
         ('1450-76-6', (
-            'ChemicalSafety',
-            'http://sds.chemicalsafety.com/sds/pda/msds/getpdf.ashx?action=msdsdocument&auth=200C200C200C200C2008207A200D2078200C200C200C200C200C200C200C200C200C2008&param1=ZmRwLjFfODA5NTg4MDNORQ==&unique='
+            # 'ChemicalSafety',
+            # 'http://sds.chemicalsafety.com/sds/pda/msds/getpdf.ashx?action=msdsdocument&auth=200C200C200C200C2008207A200D2078200C200C200C200C200C200C200C200C200C2008&param1=ZmRwLjFfODA5NTg4MDNORQ==&unique='
+            # 'Ambeed, Inc.', 'https://file.chemscene.com/pdf/UsaMSDS/MSDSUSACS-W002624.pdf',
+            'COMBI-BLOCKS', 'https://www.combi-blocks.com/msds/ST-9753.pdf'
             )
+
         ),
         ('00000-00-0', (
             None,
@@ -90,7 +97,7 @@ def test_extract_url_from_chemicalsafety(cas_nr, expect):
 
 @pytest.mark.parametrize(
     "cas_nr, expect", [
-        ('623-51-8', None)
+        ('110489-05-9', None)
     ]
 )
 def test_extract_url_from_chemicalsafety_with_exception(monkeypatch, cas_nr, expect):
@@ -108,12 +115,17 @@ def test_extract_url_from_chemicalsafety_with_exception(monkeypatch, cas_nr, exp
         ),
         ('28697-53-2', (
             'Fluorochem',
-            'https://www.cheminfo.org/webservices/msds?brand=fluorochem&catalog=237868&embed=true'
+            'https://7128445.app.netsuite.com/core/media/media.nl?id=3356442&c=7128445&h=_v0Kc3ryqhf0PELFoYMezAkGMM5n8jmJXkNJjwa0JFQ7TLqt&_xt=.pdf'
             )
         ),
         ('1450-76-6', (
             'Fluorochem',
-            'https://www.cheminfo.org/webservices/msds?brand=fluorochem&catalog=219286&embed=true'
+            'https://7128445.app.netsuite.com/core/media/media.nl?id=3274568&c=7128445&h=JZhDK4ckHBy0gdR1VbKyhzkmtZYBQzSKpmFRM33N7hUNvc4D&_xt=.pdf'
+            )
+        ),
+        ('491588-98-8', (
+            'Fluorochem',
+            'https://7128445.app.netsuite.com/core/media/media.nl?id=3440879&c=7128445&h=PP8rxC0xkIl2R9G77mZWbuoWcmp39xUlKf5lVWxrDQl8brqz&_xt=.pdf'
             )
         ),
         ('00000-00-0', (
@@ -143,22 +155,26 @@ def test_extract_url_from_fluorochem_with_exception(monkeypatch, cas_nr, expect)
     "cas_nr, expect", [
         ('67-68-5', (
             'Alfa-Aesar',
-            'https://www.chemblink.com/MSDS/MSDSFiles/67-68-5_Alfa-Aesar.pdf'
+            # 'https://www.chemblink.com/MSDS/MSDSFiles/67-68-5_Alfa-Aesar.pdf'
+            'https://www.chemblink.com/MSDS/MSDSFiles/67-68-5Alfa-Aesar.pdf'
             )
         ),
         ('64-19-7', (
             'Alfa-Aesar',
-            'https://www.chemblink.com/MSDS/MSDSFiles/64-19-7_Alfa-Aesar.pdf'
+            # 'https://www.chemblink.com/MSDS/MSDSFiles/64-19-7_Alfa-Aesar.pdf'
+            'https://www.chemblink.com/MSDS/MSDSFiles/64-19-7Alfa-Aesar.pdf'
             )
         ),
         ('1450-76-6', (
             'Sigma-Aldrich',
-            'https://www.chemblink.com/MSDS/MSDSFiles/1450-76-6_Sigma-Aldrich.pdf'
+            # 'https://www.chemblink.com/MSDS/MSDSFiles/1450-76-6_Sigma-Aldrich.pdf'
+            'https://www.chemblink.com/MSDS/MSDSFiles/1450-76-6Sigma-Aldrich.pdf'
             )
         ),
         ('681128-50-7', (
             'Matrix',
-            'https://www.chemblink.com/MSDS/MSDSFiles/681128-50-7_Matrix.pdf'
+            # 'https://www.chemblink.com/MSDS/MSDSFiles/681128-50-7_Matrix.pdf'
+            'https://www.chemblink.com/MSDS/MSDSFiles/681128-50-7Matrix.pdf'
             )
         ),
         ('00000-00-0', (
@@ -193,7 +209,8 @@ def test_extract_url_from_chemblink_with_exception(monkeypatch, cas_nr, expect):
         #     )
         # ),
         ('64-19-7', (
-            'Acros Organics',
+            # 'Acros Organics',
+            'Thermo Scientific',
             'https://us.vwr.com/assetsvc/asset/en_US/id/17991993/contents'
             )
         ),

@@ -82,14 +82,18 @@ def find_sds(cas_list: List[str], download_path: str = None, pool_size: int = 10
     print('Downloading missing SDS files. Please wait!')
 
     download_result = []
-    # # Using multithreading
     try:
-        with Pool(pool_size) as p:
-            download_result = p.map(partial(
+        # # Using multithreading
+        if not debug:
+            with Pool(pool_size) as p:
+                download_result = p.map(partial(
                                         download_sds,
                                         download_path=download_path),
                                     to_be_downloaded)
-
+        else:
+            download_result = []
+            for cas_nr in to_be_downloaded:
+                download_result.append(download_sds(cas_nr=cas_nr, download_path=download_path))
     except Exception as error:
         # if debug:
         traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
@@ -171,13 +175,15 @@ def download_sds(cas_nr: str, download_path: str) -> Tuple[str, bool, Optional[s
 
         try:
             # print('CAS {} ...'.format(file_name))
-            sds_source, full_url = extract_download_url_from_chemblink(cas_nr) or \
+            sds_source, full_url = (
+                extract_download_url_from_chemblink(cas_nr) or \
                 extract_download_url_from_vwr(cas_nr) or \
                 extract_download_url_from_fisher(cas_nr) or \
                 extract_download_url_from_tci(cas_nr) or \
                 extract_download_url_from_chemicalsafety(cas_nr) or \
                 extract_download_url_from_fluorochem(cas_nr) or \
                 (None, None)
+            )
             # sds_source, full_url = extract_download_url_from_tci(cas_nr)
 
             # print('full url is: {}'.format(full_url))
@@ -198,8 +204,9 @@ def download_sds(cas_nr: str, download_path: str) -> Tuple[str, bool, Optional[s
 
         except Exception as error:
             if debug:
-                traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
-                print(traceback_str)
+                # traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+                # print(traceback_str)
+                traceback.print_exception(error)
             return (cas_nr, downloaded, None)
 
 
@@ -233,7 +240,7 @@ def extract_download_url_from_chemblink(cas_nr: str) -> Optional[Tuple[str, str]
     }
 
     # get url from chemicalsafety.com to get url to download sds file
-    extract_info_url = f'https://www.chemblink.com/MSDS/{cas_nr}_MSDS.htm'
+    extract_info_url = f'https://www.chemblink.com/MSDS/{cas_nr}MSDS.htm'
 
     if debug:
         print('Searching on https://www.chemblink.com')
@@ -252,16 +259,19 @@ def extract_download_url_from_chemblink(cas_nr: str) -> Optional[Tuple[str, str]
                 if a_tags:
                     domain = 'https://www.chemblink.com'
                     sds_link = a_tags[0]['href']
-                    # Get source name from sds_link, example of sds_link href: '/MSDS/MSDSFiles/64-19-7_Alfa-Aesar.pdf'
-                    source = re.search(r'\S+_(\S*)\.pdf', sds_link).group(1)
+                    # # Get source name from sds_link, example of sds_link href: '/MSDS/MSDSFiles/64-19-7_Alfa-Aesar.pdf' (before Jul 21 2024)
+                    # source = re.search(r'\S+_(\S*)\.pdf', sds_link).group(1)
+                    # Get source name from sds_link, example of sds_link href: '/MSDS/MSDSFiles/64-19-7Alfa-Aesar.pdf'
+                    source = re.search(r'([a-zA-Z\-]+)\.pdf', sds_link).group(1)
                     full_url = f'{domain}{sds_link}'
                     return source, full_url
 
     except Exception as error:
         # print('.', end='')
         if debug:
-            traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
-            print(traceback_str)
+            # traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+            # print(traceback_str)
+            traceback.print_exception(error)
         # return None
 
 
@@ -289,7 +299,8 @@ def extract_download_url_from_vwr(cas_nr: str) -> Optional[Tuple[str, str]]:
     """
     global debug
 
-    adv_search_url = 'https://us.vwr.com/store/msds'.format(cas_nr)
+    adv_search_url = 'https://us.vwr.com/store/msds'
+    # adv_search_url = f'https://us.vwr.com/store/msds?keyword={cas_nr}'
     headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36',
     }
@@ -338,8 +349,9 @@ def extract_download_url_from_vwr(cas_nr: str) -> Optional[Tuple[str, str]]:
 
     except Exception as error:
         if debug:
-            traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
-            print(traceback_str)
+            # traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+            # print(traceback_str)
+            traceback.print_exception(error)
         # return (cas_nr, downloaded, None)
 
 
@@ -364,12 +376,18 @@ def extract_download_url_from_fisher(cas_nr: str) -> Optional[Tuple[str, str]]:
     # global debug
 
     headers = {
-        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36'}
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'same-origin',
+        'Sec-Fetch-User': '?1',
+    }
 
     # get url from Fisher to get url to download sds file
     extract_info_url = 'https://www.fishersci.com/us/en/catalog/search/sds'
     payload = {
-        'selectLang': 'EN',
+        'selectLang': '',
+        'store': '',
         'msdsKeyword': cas_nr}
 
     if debug:
@@ -386,11 +404,18 @@ def extract_download_url_from_fisher(cas_nr: str) -> Optional[Tuple[str, str]]:
             # cat_no_list = html.find(class_='catalog_num')    # This is to find all of the sds
 
             # Check if there is error message. Fisher automatically does a close search with error message
-            error_message = html.find(class_='errormessage search_results_error_message')
-            cat_no_list = html.find(class_='catlog_items')    # This will find the first sds
+            # breakpoint()
+            # error_message = html.find(class_='errormessage search_results_error_message')
+            # # Fisher give non-display message for un-real error message
+            # if error_message.attrs['style'] == 'display: none;':
+            #     error_message = None
+            # cat_no_list = exact_compound_row.find(class_='catlog_items')    # This will find the first sds
 
-            if (not error_message) and cat_no_list:
-                cat_no_items = cat_no_list.find_all('a')   #
+            # Find the row with the image (first column in the result table) name containing the CAS number:
+            exact_compound_row = html.select_one(f'.msds_img:has(img[src*="{cas_nr}"]) + *.catalog_data .catlog_items')
+
+            if exact_compound_row:
+                cat_no_items = exact_compound_row.find_all('a')   #
                 # download info
                 rel_download_url = cat_no_items[0].get('href')
                 catalogID = cat_no_items[0].contents[0]
@@ -401,8 +426,9 @@ def extract_download_url_from_fisher(cas_nr: str) -> Optional[Tuple[str, str]]:
     except Exception as error:
         # print('.', end='')
         if debug:
-            traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
-            print(traceback_str)
+            # traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+            # print(traceback_str)
+            traceback.print_exception(error)
         # return None
 
 
@@ -429,61 +455,160 @@ def extract_download_url_from_chemicalsafety(cas_nr: str) -> Optional[Tuple[str,
     headers = {
         'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36',
         'accept-encoding': 'gzip, deflate, br',
-        'content-type': 'application/json'}
+        'content-type': 'application/json',
+        # 'Referer': 'https://chemicalsafety.com/sds-search/',
+    }
     # get url from chemicalsafety.com to get url to download sds file
-    extract_info_url = 'https://chemicalsafety.com/sds1/retriever.php'
+    # extract_info_url = 'https://chemicalsafety.com/sds1/retriever.php'
+    extract_info_url = 'https://chemicalsafety.com/sds1/sds_retriever.php?action=search'
+    # form1 = {
+    #     "action": "search",
+    #     # "bee": "honey",
+    #     # "p1": "MSMSDS.COMMON|",
+    #     # "p2": "MSMSDS.MANUFACT|",
+    #     # "p3": "MSCHEM.CAS|" + cas_nr,
+    #     # "hostName": "cs website",
+    #     # "isContains": "0",
+    #     # 'searchUrl': "",
+    #     }
     form1 = {
-        "action": "search",
-        "bee": "honey",
-        "p1": "MSMSDS.COMMON|",
-        "p2": "MSMSDS.MANUFACT|",
-        "p3": "MSCHEM.CAS|" + cas_nr,
-        "hostName": "cs website",
-        "isContains": "0",
-        'searchUrl': "",
-        }
+        "IsContains":"false",
+        "IncludeSynonyms":"false",
+        "SearchSdsServer":"false",
+        "Criteria":[f"cas|{cas_nr}"],
+        "HostName":"sfs website",
+        # "Remote":"97.64.216.42",
+        "Bee":"stevia","Action":"search","SearchUrl":"","ResultColumns":["revision_date"]
+    }
 
     if debug:
         print('Searching on https://chemicalsafety.com/sds-search/')
 
     try:
-        r1 = requests.post(extract_info_url, headers=headers,
+        with requests.Session() as s:
+            r1 = s.post(extract_info_url, headers=headers,
+                           # params={'action': 'search'},
                 data=json.dumps(form1), timeout=20)
-        # Check to see if give OK status (200) and not redirect
-        if r1.status_code == 200 and len(r1.history) == 0:
-            id_list = r1.json()['rows']
-            msds_id = ''
-            for item in id_list:
-                if item[3] == cas_nr:
-                    msds_id = item[0]
-                    break
-            if msds_id != '':
-                sds_viewer_url = 'https://chemicalsafety.com/sds1/sdsviewer.php'
-                form2 = {"action": "msdsdetail",
-                        "p1": msds_id,
-                        "p2": "",
-                        "p3": "",
-                        "bee": "chemsafe",
-                        "isContains": ""}
-                r2 = requests.post(extract_info_url, headers=headers,
-                        data=json.dumps(form2), timeout=20)
-                result = r2.json()['rows'][0]
-                #Confirm the msds_id and cas_nr:
-                if msds_id == result[0] and cas_nr == result[3]:
-                    sds_pdf_file = result[10].rstrip(',')
-                    form3 = {"action":"getpdfurl","p1":sds_pdf_file,"p2":"","p3":"", "bee": "chemsafe", "isContains":""}
-                    r3 = requests.post(extract_info_url, headers=headers, data=json.dumps(form3), timeout=20)
-                    #Get the url
-                    # Translate curl to python https://curl.trillworks.com/
-                    # urllib.parse doc: https://docs.python.org/3.6/library/urllib.parse.html
-                    full_url = r3.json()['url']
-                    # print(f'{full_url=}'); exit()
-                    return 'ChemicalSafety', full_url
+
+            '''Example of r1.json():
+{'cols': [{'name': 'MSDS_ID', 'prompt': 'MSDS_ID'},
+          {'name': 'COMMON', 'prompt': 'Product Name'},
+          {'name': 'MANUFACT', 'prompt': 'MANUFACTURER'},
+          {'name': 'CAS', 'prompt': 'CAS'},
+          {'name': 'CSDISPMSDSID', 'prompt': 'CS DISTRIBUTION ID'},
+          {'name': 'HASMSDS', 'prompt': 'HASMSDS'},
+          {'name': 'HPHRASES_IDS', 'prompt': 'HPHRASES_IDS'},
+          {'name': 'SDSSERVER', 'prompt': 'SDSSERVER'},
+          {'name': 'RS', 'prompt': 'MSDS/SDS #'},
+          {'name': 'DATE1', 'prompt': 'REVISION DATE'},
+          {'name': 'HTTPMSDSREF', 'prompt': 'HTTP REF'}],
+ 'rows': [['31303512',
+           'Ethyl 2-mercaptoacetate',
+           'Alfa Aesar',
+           '623-51-8',
+           '3395929',
+           '1',
+           '',
+           '',
+           '31303512',
+           '2020-02-14',
+           'https://www.alfa.com/en/msds/?language=EN&subformat=AGHS&sku=A14321'],
+          ['33075495',
+           'Ethyl 2-mercaptoacetate',
+           'ThermoFisher',
+           '623-51-8',
+           '32571684',
+           '1',
+           '',
+           '',
+           '33075495',
+           '2020-12-10',
+           'https://assets.thermofisher.com/directwebviewer/private/results.aspx?page=NewSearch&LANGUAGE=d__EN&SUBFORMAT=d__CGV4&SKU=ACR11867&PLANT=d__ACR'],
+          ['30060560',
+           'Ethyl thioglycolate',
+           'Aldrich',
+           '623-51-8',
+           '2260561',
+           '1',
+           '',
+           '',
+           '30060560',
+           '2023-10-27',
+           'https://www.sigmaaldrich.com/us/en/sds/ALDRICH/E34307'],
+          ['33110417',
+           'Ethyl thioglycolate',
+           'Ambeed, Inc.',
+           '623-51-8',
+           '32606604',
+           '1',
+           '',
+           '',
+           '33110417',
+           '2023-11-26',
+           'https://file.ambeed.com/static/upload/prosds/am/306/SDS-A305712.pdf'],
+          ['32508606',
+           'Ethyl Thioglycolate',
+           'Tokyo Chemical Industry Co., Ltd.',
+           '623-51-8',
+           '32407940',
+           '1',
+           '',
+           '',
+           '32508606',
+           '2018-07-06',
+           'https://www.tcichemicals.com/US/en/sds/T0211_US_EN.pdf']]}
+            '''
+            cols = [row['name'] for row in r1.json()['cols']]
+            cas_col_index = cols.index('CAS')
+            manufacture_col_index = cols.index('MANUFACT')
+            sds_url_col_index = cols.index('HTTPMSDSREF')
+            correct_compounds = [(row[sds_url_col_index], row[manufacture_col_index])
+                        for row in r1.json()['rows']
+                        if (row[cas_col_index] == cas_nr
+                            and re.search(r'^http.+\.pdf$', row[sds_url_col_index]))
+                        ]
+            if correct_compounds:
+                url = correct_compounds[-1][0]
+                manufacture = correct_compounds[-1][1]
+                return manufacture, url
+
+            # # Check to see if give OK status (200) and not redirect
+            # if r1.status_code == 200 and len(r1.history) == 0 and r1.json():
+            #     id_list = r1.json()['rows']
+            #     msds_id = ''
+            #     for item in id_list:
+            #         if item[3] == cas_nr:
+            #             msds_id = item[0]
+            #             break
+            #     if msds_id != '':
+            #         # sds_viewer_url = 'https://chemicalsafety.com/sds1/sdsviewer.php'
+            #         url2 = 'https://chemicalsafety.com/sds1/retriever.php'
+            #         form2 = {"Action": "msdsdetail",
+            #              "P1": msds_id,
+            #              "Bee": "chemsafe",
+            #              }
+            #         r2 = s.post(url2,
+            #                     headers=headers,
+            #             data=json.dumps(form2), timeout=20)
+            #         breakpoint()
+            #         result = r2.json()['rows'][0]
+            #         #Confirm the msds_id and cas_nr:
+            #         if msds_id == result[0] and cas_nr == result[3]:
+            #             sds_pdf_file = result[10].rstrip(',')
+            #             form3 = {"action":"getpdfurl","p1":sds_pdf_file,"p2":"","p3":"", "bee": "chemsafe", "isContains":""}
+            #             r3 = s.post(extract_info_url, headers=headers, data=json.dumps(form3), timeout=20)
+            #             #Get the url
+            #             # Translate curl to python https://curl.trillworks.com/
+            #             # urllib.parse doc: https://docs.python.org/3.6/library/urllib.parse.html
+            #             full_url = r3.json()['url']
+            #             # print(f'{full_url=}'); exit()
+            #             return 'ChemicalSafety', full_url
     except Exception as error:
         # print('.', end='')
         if debug:
-            traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
-            print(traceback_str)
+            # traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+            # print(traceback_str)
+            traceback.print_exception(error)
         # return None
 
 
@@ -511,43 +636,40 @@ def extract_download_url_from_fluorochem(cas_nr: str) -> Optional[Tuple[str, str
         'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36',
         'Content-Type': 'application/json', }
 
-    url = 'http://www.fluorochem.co.uk/Products/Search'
+    # url = 'http://www.fluorochem.co.uk/Products/Search'
+    # payload = {
+    #     "lstSearchType": "C",
+    #     "txtSearchText": cas_nr,
+    #     "showPrices": 'false',
+    #     "showStructures": 'false',
+    #     "groupFilters": []}
+
+    # Update on Jul 21 2024
+    url = 'https://dougdiscovery.com/api/v1/molecules/search'
     payload = {
-        "lstSearchType": "C",
-        "txtSearchText": cas_nr,
-        "showPrices": 'false',
-        "showStructures": 'false',
-        "groupFilters": []}
+        "q": cas_nr, "offset": 0, "limit": 12}
 
     if debug:
-        print('Searching on http://www.fluorochem.co.uk')
+        # print('Searching on http://www.fluorochem.co.uk')
+        print('Searching on Fluorochem (UK) using https://dougdiscovery.com/')
 
     try:
         r = requests.post(url, headers=headers, timeout=20, data=json.dumps(payload))
-        # No need to check if requests give OK status (200) and not redirect because
-        # fluorochem return code 200 without redirect with error
-
-        # BeautifulSoup ref: https://www.digitalocean.com/community/tutorials/how-to-scrape-web-pages-with-beautiful-soup-and-python-3
-        # Using BeautifulSoup to scrap text
-        html = BeautifulSoup(r.text, 'html.parser')
-        if html:
-            result = html.find_all('td')
-            if result:
-                # info = [item.contents[0] for item in result]
-                # cat_no_1 = info[0]
-                # cas = info[2]
-                cat_no_2 = html.find(class_='textLink prodDetailLink').get('prodcode')
-                # confirming cas# and catalog number
-                # if cas == cas_nr and cat_no_1 == cat_no_2:
-                # download info
-                download_url = 'https://www.cheminfo.org/webservices/msds?brand=fluorochem&catalog={}&embed=true'
-                full_url = download_url.format(cat_no_2)
-                return 'Fluorochem', full_url
+        if r.status_code == 200 and len(r.history) == 0:
+            res = r.json()
+            sds_info = res['data'][0]['molecule']['sds'] if res['data'] else None
+            if not sds_info:
+                return
+            sds_partial_url_en = sds_info['custrecord_sdslink_en']
+            # download info
+            full_url = f'https://7128445.app.netsuite.com{sds_partial_url_en}'
+            return 'Fluorochem', full_url
     except Exception as error:
         #     print('.', end='')
         if debug:
-            traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
-            print(traceback_str)
+            # traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+            # print(traceback_str)
+            traceback.print_exception(error)
         # return None
 
 
@@ -568,11 +690,19 @@ def extract_download_url_from_tci(cas_nr: str) -> Optional[Tuple[str, str]]:
     """
     global debug
 
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36',
-    }
 
-    adv_search_url = 'https://www.tcichemicals.com/US/en/search/?text={}&resulttype=product'.format(cas_nr)
+    # adv_search_url = 'https://www.tcichemicals.com/US/en/search/?text={}&resulttype=product'.format(cas_nr)
+    # adv_search_url = 'https://www.tcichemicals.com/US/en/search/?text={}'.format(cas_nr)
+    adv_search_url = 'https://www.tcichemicals.com/US/en/search/'
+
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+        'Referer': adv_search_url,
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode':'navigate',
+        'Sec-Fetch-Site':'same-origin',
+        'Sec-Fetch-User':'?1',
+    }
 
     # # Set initial return value for if SDS is downloaded (or existed)
     # downloaded = False
@@ -585,7 +715,7 @@ def extract_download_url_from_tci(cas_nr: str) -> Optional[Tuple[str, str]]:
 
     try:
         with requests.Session() as s:
-            get_id = s.get(adv_search_url, headers=headers, timeout=10)
+            get_id = s.get(adv_search_url, headers=headers, timeout=10, params={'text': cas_nr})
 
             if get_id.status_code == 200 and len(get_id.history) == 0:
                 # get_id.text
@@ -593,7 +723,10 @@ def extract_download_url_from_tci(cas_nr: str) -> Optional[Tuple[str, str]]:
                 # print(html.prettify()); exit(1)
 
                 # Get the token, required for POST request for SDS file name later
-                csrf_token = html.find('input', attrs={'name': 'CSRFToken'})['value']
+                csrf_token = html.find('input', attrs={'name': 'CSRFToken'})['value'] if html.find('input', attrs={'name': 'CSRFToken'}) else None
+                # breakpoint()
+                if not csrf_token:
+                    return
                 # print(f'{csrf_token=}')
 
                 region_code = html.find_all(string=re.compile(r'(encodedContextPath[^;]+?;)'))
@@ -655,17 +788,21 @@ def extract_download_url_from_tci(cas_nr: str) -> Optional[Tuple[str, str]]:
 
     except Exception as error:
         if debug:
-            traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
-            print(traceback_str)
+            # traceback_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+            # print(traceback_str)
+            traceback.print_exception(error)
 
 
 if __name__ == '__main__':
-    cas_list = ['10257-55-3', '106-93-4', '110489-05-9', '111-87-5', '124-73-2',
+    cas_list = [
+        '10257-55-3', '106-93-4', '110489-05-9', '111-87-5', '124-73-2',
         '1323-83-7', '139-02-6', '15022-08-9', '18586-22-6', '1859-08-1',
         '2156-97-0', '3687-18-1', '39389-20-3', '558-20-3', '63316-43-8',
         '68441-33-8', '70900-21-9', '7440-06-4', '75-47-8', '75-69-4',
         '853-68-9', '141-78-6', '110-82-7', '67-63-0', '75-09-2', '109-89-7',
         '872-50-4', '68-12-2', '96-47-9', '111-66-0', '110-54-3',
+        '491588-98-8',
+        '1215071-17-2', '63148-57-2', '128577-47-9', '57395-89-8', '34851-41-7', '732-80-9',
         '00000-00-0',     # invalid CAS number, or unknown CAS
     ]
     download_path = 'SDS'
