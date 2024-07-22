@@ -83,7 +83,7 @@ jobs:
 #         pip install ./
     - name: Upload coverage to codecov.io
       uses: codecov/codecov-action@v1
-      if: startsWith(runner.os, 'Linux') && matrix.python-version == 3.8
+      if: startsWith(runner.os, 'Linux') && matrix.python-version == 3.10
       with:
         # CODECOV_TOKEN is repo-specific and it must be copied from codecov.io for the repository
         # and stored as a secret in GitHub's repository Settings > Secrets. CODECOV_TOKEN does not
