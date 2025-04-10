@@ -1,4 +1,4 @@
-urllib3==2.2.2
+urllib3==2.4.0
 beautifulsoup4==4.12.3
 idna==3.7
 chardet==4.0.0
